@@ -44,19 +44,21 @@ RUN apt-get -q update \
  && apt-get -q install -y --no-install-recommends software-properties-common \
  && add-apt-repository -y ppa:ubuntu-toolchain-r/test \
  && apt-get -q install -y --only-upgrade libstdc++6 \
+ && apt-get -q install -y libstdc++6:i386 \
  && add-apt-repository -y --remove ppa:ubuntu-toolchain-r/test \
  && apt-get -q remove -y --auto-remove software-properties-common \
  && apt-get clean \
  && rm -rf /var/lib/apt/lists/*
 
 # install steam dependencies
-RUN apt-get -q install -y wget libgl1-mesa-glx:i386 libcurl4-openssl-dev pkg-config libegl1:i386 libgbm1:i386 \
-  xdg-desktop-portal xdg-desktop-portal-gtk at-spi2-core libglx-mesa0:i386 libgl1-mesa-dri:i386 \
-  libstdc++6:i386 libgl1:i386 zenity libgdk-pixbuf2.0-0 libgtk-3-0 libnotify4 libwebkit2gtk-4.0-37 
+RUN apt-get -q update \
+ && apt-get -q install -y wget libgl1-mesa-glx:i386 libcurl4-openssl-dev pkg-config libegl1:i386 libgbm1:i386 \
+    xdg-desktop-portal xdg-desktop-portal-gtk at-spi2-core libglx-mesa0:i386 libgl1-mesa-dri:i386 \
+    libstdc++6:i386 libgl1:i386 zenity libgdk-pixbuf2.0-0 libgtk-3-0 libnotify4 libwebkit2gtk-4.0-37 
 
 # download and install steam client
 RUN wget -O /tmp/steam.deb http://media.steampowered.com/client/installer/steam.deb \
- && apt-get -q install -y /tmp/steam.deb
+ && apt-get -q install -y -o Dpkg::Options::=--force-confnew /tmp/steam.deb
 
 # install tmux
-RUN apt-get install -y tmux
+RUN apt-get -q install -y tmux
