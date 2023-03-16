@@ -1,0 +1,62 @@
+FROM unityci/editor:ubuntu-2021.3.19f1-linux-il2cpp-1
+
+# updating apt with steam packages
+RUN apt-get -q update \
+ && apt-get -q install -y gnupg2 \
+ && apt-key adv --keyserver keyserver.ubuntu.com --recv-keys B05498B7 \
+ && echo "deb [arch=amd64,i386] https://repo.steampowered.com/steam/ stable steam" >> /etc/apt/sources.list.d/steam.list \
+ && echo "deb-src [arch=amd64,i386] https://repo.steampowered.com/steam/ stable steam" >> /etc/apt/sources.list.d/steam.list \
+ && apt-get -q install -y software-properties-common \
+ && add-apt-repository multiverse \
+ && dpkg --add-architecture i386 \
+ && apt-get -q update
+
+# install xserver
+RUN apt-get -q install -y xserver-xorg xserver-xorg-video-dummy xfonts-base curl
+
+# create dummy xserver config
+RUN echo 'Section "Monitor"' > /etc/X11/xorg.conf \
+ && echo '  Identifier "Monitor0"' >> /etc/X11/xorg.conf \
+ && echo '  HorizSync 28.0-80.0' >> /etc/X11/xorg.conf \
+ && echo '  VertRefresh 48.0-75.0' >> /etc/X11/xorg.conf \
+ && echo '  # https://arachnoid.com/modelines/' >> /etc/X11/xorg.conf \
+ && echo '  # 1920x1080 @ 60.00 Hz (GTF) hsync: 67.08 kHz; pclk: 172.80 MHz' >> /etc/X11/xorg.conf \
+ && echo '  Modeline "1920x1080_60.00" 172.80 1920 2040 2248 2576 1080 1081 1084 1118 -HSync +Vsync' >> /etc/X11/xorg.conf \
+ && echo 'EndSection' >> /etc/X11/xorg.conf \
+ && echo 'Section "Device"' >> /etc/X11/xorg.conf \
+ && echo '  Identifier "Card0"' >> /etc/X11/xorg.conf \
+ && echo '  Driver "dummy"' >> /etc/X11/xorg.conf \
+ && echo '  VideoRam 256000' >> /etc/X11/xorg.conf \
+ && echo 'EndSection' >> /etc/X11/xorg.conf \
+ && echo 'Section "Screen"' >> /etc/X11/xorg.conf \
+ && echo '  DefaultDepth 24' >> /etc/X11/xorg.conf \
+ && echo '  Identifier "Screen0"' >> /etc/X11/xorg.conf \
+ && echo '  Device "Card0"' >> /etc/X11/xorg.conf \
+ && echo '  Monitor "Monitor0"' >> /etc/X11/xorg.conf \
+ && echo '  SubSection "Display"' >> /etc/X11/xorg.conf \
+ && echo '    Depth 24' >> /etc/X11/xorg.conf \
+ && echo '    Modes "1920x1080_60.00"' >> /etc/X11/xorg.conf \
+ && echo 'EndSubSection' >> /etc/X11/xorg.conf \
+ && echo 'EndSection' >> /etc/X11/xorg.conf
+
+# upgrade libstdc++6
+RUN apt-get -q update \
+ && apt-get -q install -y --no-install-recommends software-properties-common \
+ && add-apt-repository -y ppa:ubuntu-toolchain-r/test \
+ && apt-get -q install -y --only-upgrade libstdc++6 \
+ && add-apt-repository -y --remove ppa:ubuntu-toolchain-r/test \
+ && apt-get -q remove -y --auto-remove software-properties-common \
+ && apt-get clean \
+ && rm -rf /var/lib/apt/lists/*
+
+# install steam dependencies
+RUN apt-get -q install -y wget libgl1-mesa-glx:i386 libcurl4-openssl-dev pkg-config libegl1:i386 libgbm1:i386 \
+  xdg-desktop-portal xdg-desktop-portal-gtk at-spi2-core libglx-mesa0:i386 libgl1-mesa-dri:i386 \
+  libstdc++6:i386 libgl1:i386 zenity libgdk-pixbuf2.0-0 libgtk-3-0 libnotify4 libwebkit2gtk-4.0-37 
+
+# download and install steam client
+RUN wget -O /tmp/steam.deb http://media.steampowered.com/client/installer/steam.deb \
+ && apt-get -q install -y /tmp/steam.deb
+
+# install tmux
+RUN apt-get install -y tmux
