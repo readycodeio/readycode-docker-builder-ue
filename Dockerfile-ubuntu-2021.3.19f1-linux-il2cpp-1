@@ -62,3 +62,13 @@ RUN wget -O /tmp/steam.deb http://media.steampowered.com/client/installer/steam.
 
 # install tmux
 RUN apt-get -q install -y tmux
+
+# create steam user
+RUN adduser --disabled-password --gecos "" steam
+
+# run steam for the first time
+RUN X -config /etc/X11/xorg.conf & \
+ sleep 5 \
+ && export DISPLAY=:0 \
+ && su steam -c steam & \
+    sleep 300
