@@ -17,7 +17,7 @@ jobs:
         coverage:
           - false
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 35
     steps:
       - name: Set up Git repository
         uses: actions/checkout@v2

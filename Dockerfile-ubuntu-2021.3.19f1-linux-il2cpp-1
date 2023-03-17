@@ -61,14 +61,24 @@ RUN wget -O /tmp/steam.deb http://media.steampowered.com/client/installer/steam.
  && apt-get -q install -y -o Dpkg::Options::=--force-confnew /tmp/steam.deb
 
 # install tmux
-RUN apt-get -q install -y tmux
+RUN apt-get -q install -y tmux sudo
 
-# create steam user
-RUN adduser --disabled-password --gecos "" steam
+# create gamer user
+RUN adduser --disabled-password --gecos "" gamer \
+ && usermod -s /bin/bash gamer
+
+# add gamer to sudoers file
+RUN echo '#!/usr/bin/env bash' > /usr/bin/cudo.sh \
+ && echo 'echo "$1" | (EDITOR="tee -a" visudo)' >> /usr/bin/cudo.sh \
+ && chmod +x /usr/bin/cudo.sh \
+ && cudo.sh 'gamer    ALL=(ALL) NOPASSWD:ALL'
+
+# making root home dir public to give access for steam
+RUN chmod og+rwx /root
 
 # run steam for the first time
 RUN X -config /etc/X11/xorg.conf & \
  sleep 5 \
  && export DISPLAY=:0 \
- && su steam -c steam & \
+ && sudo -u gamer steam & \
     sleep 300
