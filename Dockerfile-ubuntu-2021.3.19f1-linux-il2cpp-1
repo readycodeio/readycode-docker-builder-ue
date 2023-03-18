@@ -61,24 +61,42 @@ RUN wget -O /tmp/steam.deb http://media.steampowered.com/client/installer/steam.
  && apt-get -q install -y -o Dpkg::Options::=--force-confnew /tmp/steam.deb
 
 # install tmux
-RUN apt-get -q install -y tmux sudo
+RUN apt-get -q install -y tmux sudo lsof
 
 # create gamer user
-RUN adduser --disabled-password --gecos "" gamer \
- && usermod -s /bin/bash gamer
+# RUN adduser --disabled-password --gecos "" gamer \
+#  && usermod -s /bin/bash gamer
 
 # add gamer to sudoers file
-RUN echo '#!/usr/bin/env bash' > /usr/bin/cudo.sh \
- && echo 'echo "$1" | (EDITOR="tee -a" visudo)' >> /usr/bin/cudo.sh \
- && chmod +x /usr/bin/cudo.sh \
- && cudo.sh 'gamer    ALL=(ALL) NOPASSWD:ALL'
+# RUN echo '#!/usr/bin/env bash' > /usr/bin/cudo.sh \
+#  && echo 'echo "$1" | (EDITOR="tee -a" visudo)' >> /usr/bin/cudo.sh \
+#  && chmod +x /usr/bin/cudo.sh \
+#  && cudo.sh 'gamer    ALL=(ALL) NOPASSWD:ALL'
 
 # making root home dir public to give access for steam
-RUN chmod og+rwx /root
+# RUN chmod og+rwx /root
+
+# patch steam to allow running as root
+RUN sed -i "/Don't allow running as root/{n;N;N;N;s/.*/# Deleted by a script/;}" /usr/bin/steam
 
 # run steam for the first time
 RUN X -config /etc/X11/xorg.conf & \
  sleep 5 \
  && export DISPLAY=:0 \
- && sudo -u gamer steam & \
+ && steam & \
     sleep 300
+
+# stop steam & X
+RUN echo ~ \
+ && ls -la ~/ \
+ && ls -la ~/.steam \
+ && ( kill -9 $(cat ~/.steam/steam.pid) || true ) \
+ && ( kill -9 $(lsof -ti:8081 /tmp/.X11-unix/X0) || true )
+
+# move steam init config to another folder
+RUN mkdir -p /var/local/home_template/root \
+ && mv ~/.config /var/local/home_template/root \
+ && mv ~/.local /var/local/home_template/root \
+ && mv ~/.steam /var/local/home_template/root \
+ && mv ~/.steampath /var/local/home_template/root \
+ && mv ~/.steampid /var/local/home_template/root
