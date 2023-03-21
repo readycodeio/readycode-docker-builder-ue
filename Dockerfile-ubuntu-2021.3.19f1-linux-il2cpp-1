@@ -61,7 +61,10 @@ RUN wget -O /tmp/steam.deb http://media.steampowered.com/client/installer/steam.
  && apt-get -q install -y -o Dpkg::Options::=--force-confnew /tmp/steam.deb
 
 # install tmux
-RUN apt-get -q install -y tmux sudo lsof
+RUN apt-get -q install -y tmux sudo lsof pciutils
+
+# install utilities
+RUN apt-get -q install -y sed
 
 # create gamer user
 # RUN adduser --disabled-password --gecos "" gamer \
