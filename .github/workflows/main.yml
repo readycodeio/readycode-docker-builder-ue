@@ -20,7 +20,7 @@ jobs:
     timeout-minutes: 35
     steps:
       - name: Authenticate with Epic
-        run: echo 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 | docker login ghcr.io -u daniellewinskiQED --password-stdin
+        run: echo ${{ secrets.CLASSIC_ACCESS_TOKEN }} | docker login ghcr.io -u julkiewicz --password-stdin
 
       - name: Set up Git repository
         uses: actions/checkout@v2
