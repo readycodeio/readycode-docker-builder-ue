@@ -8,12 +8,12 @@ on:
 
 jobs:
   build:
-    name: Build Docker Image for Unity ${{ matrix.unity.version }}
+    name: Build Docker Image for Unreal Engine ${{ matrix.unreal.version }}
     strategy:
       fail-fast: false
       matrix:
         unity:
-          - { version: "ubuntu-2021.3.19f1-linux-il2cpp-1" }
+          - { version: "ue-5.2" }
         coverage:
           - false
     runs-on: ubuntu-latest
@@ -37,5 +37,5 @@ jobs:
         with:
           context: .
           push: true
-          tags: ghcr.io/readycodeio/readycode-docker-builder/editor:${{ matrix.unity.version }}
-          file: Dockerfile-${{ matrix.unity.version }}
+          tags: ghcr.io/readycodeio/readycode-docker-builder-ue/editor:${{ matrix.unreal.version }}
+          file: Dockerfile-${{ matrix.unreal.version }}
