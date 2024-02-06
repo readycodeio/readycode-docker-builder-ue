@@ -12,7 +12,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        unity:
+        unreal:
           - { version: "ue-5.2" }
         coverage:
           - false
