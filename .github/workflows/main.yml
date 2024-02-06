@@ -20,7 +20,11 @@ jobs:
     timeout-minutes: 35
     steps:
       - name: Authenticate with Epic
-        run: echo ${{ secrets.CLASSIC_ACCESS_TOKEN }} | docker login ghcr.io -u julkiewicz --password-stdin
+        run: echo ${{ secrets.CLASSIC_ACCESS_TOKEN }} | sudo docker login ghcr.io -u julkiewicz --password-stdin
+
+      - name: Pull unreal image
+        run: sudo docker pull ghcr.io/epicgames/unreal-engine:dev-5.2.1
+
 
       - name: Set up Git repository
         uses: actions/checkout@v2
