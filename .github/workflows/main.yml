@@ -16,7 +16,7 @@ jobs:
           - { version: "ue-5.2" }
         coverage:
           - false
-    runs-on: ubuntu-latest
+    runs-on: self-hosted-slow
     timeout-minutes: 35
     steps:
       - name: Authenticate with Epic
